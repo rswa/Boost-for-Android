@@ -207,10 +207,10 @@ fi
 # a debug, in which case it's easy for a developer to comment out
 # this code.
 
-if [ -d "$PROGDIR/$BOOST_DIR" ]; then
-	echo "Cleaning: $BOOST_DIR"
-	rm -f -r $PROGDIR/$BOOST_DIR
-fi
+#if [ -d "$PROGDIR/$BOOST_DIR" ]; then
+#	echo "Cleaning: $BOOST_DIR"
+#	rm -f -r $PROGDIR/$BOOST_DIR
+#fi
 
 if [ -d "$PROGDIR/$BUILD_DIR" ]; then
 	echo "Cleaning: $BUILD_DIR"
@@ -331,10 +331,11 @@ case "$NDK_RN" in
 		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-g++
 		TOOLSET=gcc-androidR8e
 		;;
-	"10 (64-bit)"|"10b (64-bit)"|"10c (64-bit)"|"10d (64-bit)")
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.6}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-g++
-		TOOLSET=gcc-androidR8e
+	"10e (64-bit)")
+		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.9}
+		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-gcc-4.9
+		TOOLSET=gcc-androidR10e
+		CONFIG_VARIANT=ndk10e
 		;;
 	"16.0"|"16.1"|"17.1"|"17.2"|"18.0"|"18.1")
 		TOOLCHAIN=${TOOLCHAIN:-llvm}
@@ -353,7 +354,9 @@ case "$NDK_RN" in
 esac
 
 if [ -n "${AndroidSourcesDetected}" -a "${TOOLSET}" '!=' "clang" ]; then # Overwrite CXXPATH if we are building from Android sources
-    CXXPATH="${ANDROID_TOOLCHAIN}/arm-linux-androideabi-g++"
+	if [ "${TOOLSET}" '!=' "gcc-androidR10e" ] ; then
+		CXXPATH="${ANDROID_TOOLCHAIN}/arm-linux-androideabi-g++"
+	fi
 fi
 
 if [ -z "${ARCHLIST}" ]; then
@@ -371,7 +374,7 @@ if [ -z "${ARCHLIST}" ]; then
   fi
 fi
 
-if [ "${ARCHLIST}" '!=' "armeabi" ] && [ "${TOOLSET}" '!=' "clang" ]; then
+if [ "${ARCHLIST}" '!=' "armeabi" ] && [ "${TOOLSET}" '!=' "clang" ] && [ "${TOOLSET}" '!=' "gcc-androidR10e" ]; then
     echo "Old NDK versions only support ARM architecture"
     exit 1
 fi
@@ -509,6 +512,29 @@ fi
 
 for ARCH in $ARCHLIST; do
 
+  if [ "$TOOLSET" = "gcc-androidR10e" ]; then
+    BOOST_VER=${BOOST_VER1}_${BOOST_VER2}_${BOOST_VER3}
+    BOOST_USER_CONFIG=$BOOST_DIR/tools/build/src/user-config.jam
+    if [ "$BOOST_VER" = "1_55_0" ]; then
+      BOOST_USER_CONFIG=$BOOST_DIR/tools/build/v2/user-config.jam
+    fi
+    cp "$SCRIPTDIR"/configs/user-config-${CONFIG_VARIANT}-${BOOST_VER}.jam $BOOST_USER_CONFIG || exit 1
+    for FILE in "$SCRIPTDIR"/configs/user-config-${CONFIG_VARIANT}-${BOOST_VER}-*.jam; do
+      FileArch="`echo $FILE | sed s%$SCRIPTDIR/configs/user-config-${CONFIG_VARIANT}-${BOOST_VER}-%% | sed s/[.]jam//`"
+      if [ "$ARCH" != "$FileArch" ]; then
+        continue
+      fi
+      
+	  echo "update $FileArch to user-config.jam"
+      JAMARCH="`echo ${FileArch} | tr -d '_-'`" # Remove all dashes, bjam does not like them
+      TOOLSET_JAMARCH="androidR10e${JAMARCH}"
+      sed "s/%ARCH%/${TOOLSET_JAMARCH}/g" "$SCRIPTDIR"/configs/user-config-${CONFIG_VARIANT}-${BOOST_VER}-common.jam >> $BOOST_USER_CONFIG || exit 1
+      cat "$SCRIPTDIR"/configs/user-config-${CONFIG_VARIANT}-${BOOST_VER}-$FileArch.jam >> $BOOST_USER_CONFIG || exit 1
+      echo ';' >> $BOOST_USER_CONFIG || exit 1
+      break
+    done
+  fi
+
 echo "Building boost for android for $ARCH"
 (
 
@@ -556,6 +582,11 @@ echo "Building boost for android for $ARCH"
             exit 1
           fi
       fi
+  elif [ "$TOOLSET" = "gcc-androidR10e" ]; then
+	  JAMARCH="`echo ${ARCH} | tr -d '_-'`" # Remove all dashes, bjam does not like them
+	  TOOLSET_JAMARCH=${TOOLSET}${JAMARCH}
+	  TOOLSET_ARCH=$TOOLSET_JAMARCH
+	  TARGET_OS=linux
   else
       TOOLSET_ARCH=${TOOLSET}
       TARGET_OS=linux
@@ -565,7 +596,9 @@ echo "Building boost for android for $ARCH"
   if [ -n "$LIBRARIES" ]; then
       unset WITHOUT_LIBRARIES
   fi
-
+  echo "==============================================================="
+  echo "TOOLSET_ARCH = $TOOLSET_ARCH"
+  echo "==============================================================="
   { ./bjam -q                         \
          -d+2                         \
          --ignore-site-config         \
