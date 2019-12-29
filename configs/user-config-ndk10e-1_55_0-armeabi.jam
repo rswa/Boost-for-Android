@@ -30,6 +30,7 @@ $(AndroidBinariesPath)/arm-linux-androideabi-g++
 <compileflags>-I$(AndroidNDKRoot)/sources/cxx-stl/gnu-libstdc++/4.9/include
 <compileflags>-I$(AndroidNDKRoot)/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include
 # @Moss - Above are the 'official' android flags
+<architecture>arm
 <compileflags>-fvisibility=hidden
 <compileflags>-fvisibility-inlines-hidden
 <compileflags>-fdata-sections
