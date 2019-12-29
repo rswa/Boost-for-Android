@@ -332,17 +332,19 @@ case "$NDK_RN" in
 		TOOLSET=gcc-androidR8e
 		;;
 	"10e (64-bit)")
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.9}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-g++
+		if [ "$ARCHLIST" = "arm64-v8a " ]; then
+	      TOOLCHAIN=${TOOLCHAIN:-aarch64-linux-android-4.9}
+		  CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/aarch64-linux-android-g++
+		elif [ "$ARCHLIST" = "x86 " ]; then
+		  TOOLCHAIN=${TOOLCHAIN:-x86-4.9}
+		  CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/i686-linux-android-g++
+		else
+		  TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.9}
+		  CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-g++
+        fi
+		
 		TOOLSET=gcc-androidR10e
 		CONFIG_VARIANT=ndk10e
-		if [ "${ARCHLIST}" = "arm64-v8a" ] ; then
-	      TOOLCHAIN=${TOOLCHAIN:aarch64-linux-android-4.9}
-		  CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/aarch64-linux-android-g++
-		elif [ "${ARCHLIST}" = "x86" ] ; then
-		  TOOLCHAIN=${TOOLCHAIN:x86-4.9}
-		  CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/i686-linux-android-g++
-        fi
 		;;
 	"16.0"|"16.1"|"17.1"|"17.2"|"18.0"|"18.1")
 		TOOLCHAIN=${TOOLCHAIN:-llvm}
