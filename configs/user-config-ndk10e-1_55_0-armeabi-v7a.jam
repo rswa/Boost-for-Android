@@ -10,13 +10,14 @@ $(AndroidBinariesPath)/arm-linux-androideabi-g++
 <compileflags>-Wno-psabi
 <compileflags>-march=armv7-a
 <compileflags>-mtune=xscale
-<compileflags>-msoft-float
+<compileflags>-mfloat-abi=softfp
+<compileflags>-mfpu=vfpv3-d16
 <compileflags>-mthumb
 <compileflags>-Os
 <compileflags>-fomit-frame-pointer
 <compileflags>-fno-strict-aliasing
 <compileflags>-finline-limit=64
-<compileflags>-I$(AndroidNDKRoot)/platforms/android-15/arch-arm/usr/include
+<compileflags>-I$(AndroidNDKRoot)/platforms/android-19/arch-arm/usr/include
 <compileflags>-Wa,--noexecstack
 <compileflags>-DANDROID
 <compileflags>-D__ANDROID__

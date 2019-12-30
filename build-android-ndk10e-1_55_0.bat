@@ -1,3 +1,3 @@
-call build-android.bat D:/AndroidSdk/android-ndk-r10e --boost=1.55.0 --arch=armeabi,armeabi-v7a --with-libraries=chrono,date_time,filesystem,program_options,regex,system,thread
-call build-android.bat D:/AndroidSdk/android-ndk-r10e --boost=1.55.0 --arch=arm64-v8a --with-libraries=chrono,date_time,filesystem,program_options,regex,system,thread
-call build-android.bat D:/AndroidSdk/android-ndk-r10e --boost=1.55.0 --arch=x86 --with-libraries=chrono,date_time,filesystem,program_options,regex,system,thread
+call build-android.bat D:/AndroidSdk/android-ndk-r10e --boost=1.55.0 --arch=armeabi,armeabi-v7a --target-version=19 --with-libraries=chrono,date_time,filesystem,program_options,regex,system,thread
+call build-android.bat D:/AndroidSdk/android-ndk-r10e --boost=1.55.0 --arch=arm64-v8a --target-version=19 --with-libraries=chrono,date_time,filesystem,program_options,regex,system,thread
+call build-android.bat D:/AndroidSdk/android-ndk-r10e --boost=1.55.0 --arch=x86 --target-version=19 --with-libraries=chrono,date_time,filesystem,program_options,regex,system,thread

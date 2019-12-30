@@ -8,13 +8,18 @@ $(AndroidBinariesPath)/i686-linux-android-g++
 <compileflags>-ffunction-sections
 <compileflags>-funwind-tables
 <compileflags>-Wno-psabi
+# https://developer.android.com/ndk/guides/abis
 <compileflags>-march=i686
+<compileflags>-mtune=intel
+<compileflags>-mssse3
+<compileflags>-mfpmath=sse
+<compileflags>-m32
 <compileflags>-msoft-float
 <compileflags>-Os
 <compileflags>-fomit-frame-pointer
 <compileflags>-fno-strict-aliasing
 <compileflags>-finline-limit=64
-<compileflags>-I$(AndroidNDKRoot)/platforms/android-9/arch-x86/usr/include
+<compileflags>-I$(AndroidNDKRoot)/platforms/android-19/arch-x86/usr/include
 <compileflags>-Wa,--noexecstack
 <compileflags>-DANDROID
 <compileflags>-D__ANDROID__
